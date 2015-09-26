@@ -5,8 +5,8 @@
 #include <pthread.h>
 
 #define PORT "6001"
-#define SERVER "splat.zork.org"
-#define CLIENT "shell.zork.org"
+#define SERVER "127.0.0.1"
+#define CLIENT "127.0.0.1"
 
 #define int_error(msg) handle_error(__FILE__, __LINE__, msg)
 void handle_error(const char *file, int lineno, const char *msg);
