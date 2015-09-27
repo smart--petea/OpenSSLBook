@@ -13,6 +13,6 @@ void handle_error(const char *file, int lineno, const char *msg);
 
 void init_OpenSSL(void);
 
-int THREAD_setup(void);
-int THREAD_cleanup(void);
+void THREAD_setup(void);
+void THREAD_cleanup(void);
 

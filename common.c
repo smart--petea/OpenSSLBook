@@ -7,60 +7,62 @@ void handle_error(const char *file, int lineno, const char *msg)
     exit(-1);
 }
 
-static pthread_mutex_t* mutex_buf = NULL;
+static pthread_mutex_t *lock_cs;
+static long *lock_count;
 
-static void locking_function(int mode, int n, const char* file, int line)
+void pthreads_thread_id(CRYPTO_THREADID *tid)
 {
-    if(mode && CRYPTO_LOCK)
-        pthread_mutex_lock(&mutex_buf[n]);
-    else
-        pthread_mutex_unlock(&mutex_buf[n]);
+        CRYPTO_THREADID_set_numeric(tid, (unsigned long)pthread_self());
+}
+
+void pthreads_locking_callback(int mode, int type, const char *file, int line)
+{
+    if (mode & CRYPTO_LOCK)
+    {
+        pthread_mutex_lock(&(lock_cs[type]));
+        lock_count[type]++;
+    } else {
+        pthread_mutex_unlock(&(lock_cs[type]));
+    }
+}
+
+void THREAD_setup(void)
+{
+    int i;
+
+    lock_cs = OPENSSL_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
+    lock_count = OPENSSL_malloc(CRYPTO_num_locks() * sizeof(long));
+    for (i = 0; i < CRYPTO_num_locks(); i++)
+    {
+        lock_count[i] = 0;
+        pthread_mutex_init(&(lock_cs[i]), NULL);
+    }
+
+    CRYPTO_THREADID_set_callback(pthreads_thread_id);
+    CRYPTO_set_locking_callback(pthreads_locking_callback);
+}
+
+void THREAD_cleanup(void)
+{
+    int i;
+
+    CRYPTO_set_locking_callback(NULL);
+    fprintf(stderr, "\ncleanup");
+    for (i = 0; i < CRYPTO_num_locks(); i++)
+    {
+        pthread_mutex_destroy(&(lock_cs[i]));
+        fprintf(stderr, "\n%8ld:%s", lock_count[i], CRYPTO_get_lock_name(i));
+    }
+
+    OPENSSL_free(lock_cs);
+    OPENSSL_free(lock_count);
+
+    fprintf(stderr, "\ndone cleanup");
 }
 
 static unsigned long id_function(void)
 {
     return (unsigned long) pthread_self();
-}
-
-int THREAD_setup(void)
-{
-    int i;
-
-    fprintf(stderr, "\nTry to alloc memory for mutex_buf - ");
-    mutex_buf = (pthread_mutex_t *) malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
-    if(!mutex_buf) {
-        fprintf(stderr, "not setted");
-        return 0;
-    }
-    fprintf(stderr, "setted");
-
-    for(i = 0; i < CRYPTO_num_locks(); i++)
-        pthread_mutex_init(&mutex_buf[i], NULL);
-
-    //fprintf(stderr, "\nTry to set id_function - ");
-    //CRYPTO_THREADID_set_callback(id_function);
-    //fprintf(stderr, "setted");
-
-    //fprintf(stderr, "\nTry to set locking_function - ");
-    //CRYPTO_set_locking_callback(locking_function);
-    //fprintf(stderr, "setted");
-
-    return 1;
-}
-
-int THREAD_cleanup(void)
-{
-    int i;
-    if(!mutex_buf)
-        return 0;
-    CRYPTO_set_id_callback(NULL);
-    CRYPTO_set_locking_callback(NULL);
-    for(i = 0; i < CRYPTO_num_locks(); i++)
-        pthread_mutex_destroy(&mutex_buf[i]);
-
-    free(mutex_buf);
-    mutex_buf = NULL;
-    return 1;
 }
 
 void init_OpenSSL(void)
@@ -76,12 +78,7 @@ void init_OpenSSL(void)
 
     SSL_load_error_strings();
 
-    if( !THREAD_setup() )
-    {
-        fprintf(stderr, "\n thread setup failed");
-        exit(-1);
-    }
-
-
-    fprintf(stderr, "\ninit_OpenSSL end\n");
+    fprintf(stderr, "\ntry to start THREAD_setup - ");
+    THREAD_setup();
+    fprintf(stderr, "started");
 }
