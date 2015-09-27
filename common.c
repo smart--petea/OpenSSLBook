@@ -37,13 +37,13 @@ int THREAD_setup(void)
     for(i = 0; i < CRYPTO_num_locks(); i++)
         pthread_mutex_init(&mutex_buf[i], NULL);
 
-    fprintf(stderr, "\nTry to set id_function - ");
-    CRYPTO_set_id_callback(id_function);
-    fprintf(stderr, "setted");
+    //fprintf(stderr, "\nTry to set id_function - ");
+    //CRYPTO_THREADID_set_callback(id_function);
+    //fprintf(stderr, "setted");
 
-    fprintf(stderr, "\nTry to set locking_function - ");
-    CRYPTO_set_locking_callback(locking_function);
-    fprintf(stderr, "setted");
+    //fprintf(stderr, "\nTry to set locking_function - ");
+    //CRYPTO_set_locking_callback(locking_function);
+    //fprintf(stderr, "setted");
 
     return 1;
 }
@@ -76,11 +76,11 @@ void init_OpenSSL(void)
 
     SSL_load_error_strings();
 
-    //if( !THREAD_setup() )
-    //{
-    //    fprintf(stderr, "\n thread setup failed");
-    //    exit(-1);
-    //}
+    if( !THREAD_setup() )
+    {
+        fprintf(stderr, "\n thread setup failed");
+        exit(-1);
+    }
 
 
     fprintf(stderr, "\ninit_OpenSSL end\n");
