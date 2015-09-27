@@ -48,13 +48,17 @@ int main(int argc, char *argv[])
 
     init_OpenSSL();
 
+    fprintf(stderr, "\ntry BIO_new_accept - ");
     //BIO_new_accept = combine BIO_new() with BIO_set_accept_port()
     acc = BIO_new_accept(PORT);
     if(!acc)
         int_error("Error creating server socket");
+    fprintf(stderr, "OK");
 
+    fprintf(stderr, "\ntry BIO_do_accept - ");
     if(BIO_do_accept(acc) <= 0)
         int_error("Error binding server socket");
+    fprintf(stderr, "OK");
 
     /*
      * BIO_do_accept serves two functions. WHEN it is first called, after the accepted
@@ -65,10 +69,16 @@ int main(int argc, char *argv[])
 
     for(;;)
     {
+        fprintf(stderr, "\nWaiting for new connection");
         if(BIO_do_accept(acc) <= 0)
             int_error("Error accepting connection");
 
+        fprintf(stderr, "\nNew connection arrived");
+
+        fprintf(stderr, "\nTry to get new connection - ");
         client = BIO_pop(acc);
+        fprintf(stderr, "I got it");
+
         pthread_create(&tid, NULL, server_thread, (void *)client);
     }
 

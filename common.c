@@ -25,15 +25,27 @@ static unsigned long id_function(void)
 int THREAD_setup(void)
 {
     int i;
+
+    fprintf(stderr, "\nTry to alloc memory for mutex_buf - ");
     mutex_buf = (pthread_mutex_t *) malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
-    if(!mutex_buf)
+    if(!mutex_buf) {
+        fprintf(stderr, "not setted");
         return 0;
+    }
+    fprintf(stderr, "setted");
+
     for(i = 0; i < CRYPTO_num_locks(); i++)
         pthread_mutex_init(&mutex_buf[i], NULL);
 
+    fprintf(stderr, "\nTry to set id_function - ");
     CRYPTO_set_id_callback(id_function);
+    fprintf(stderr, "setted");
+
+    fprintf(stderr, "\nTry to set locking_function - ");
     CRYPTO_set_locking_callback(locking_function);
-    return -1;
+    fprintf(stderr, "setted");
+
+    return 1;
 }
 
 int THREAD_cleanup(void)
@@ -53,10 +65,23 @@ int THREAD_cleanup(void)
 
 void init_OpenSSL(void)
 {
-    if( !THREAD_setup() || ! SSL_library_init())
+
+    fprintf(stderr, "\ntry to init ssl library - ");
+    if(!SSL_library_init())
     {
-        fprintf(stderr, "** OpenSSL initialization failed!\n");
+        fprintf(stderr, "failed");
         exit(-1);
     }
+    fprintf(stderr, "inited");
+
     SSL_load_error_strings();
+
+    //if( !THREAD_setup() )
+    //{
+    //    fprintf(stderr, "\n thread setup failed");
+    //    exit(-1);
+    //}
+
+
+    fprintf(stderr, "\ninit_OpenSSL end\n");
 }
