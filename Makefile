@@ -6,3 +6,6 @@ ex5-3client.o: common.o ex5-3.client.c
 
 common.o: common.c
 	gcc -c common.c -lssl -lcrypto
+
+setupCAEnv:
+	bash shScripts/setupCAEnvironment.sh
