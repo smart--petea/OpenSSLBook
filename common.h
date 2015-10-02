@@ -1,5 +1,5 @@
-#include <openssl/bio.h>
 #include <openssl/err.h>
+#include <openssl/bio.h>
 #include <openssl/rand.h>
 #include <openssl/x509v3.h>
 #include <pthread.h>
@@ -16,3 +16,4 @@ void init_OpenSSL(void);
 void THREAD_setup(void);
 void THREAD_cleanup(void);
 
+int seed_prng(int);

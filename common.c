@@ -82,3 +82,10 @@ void init_OpenSSL(void)
     THREAD_setup();
     fprintf(stderr, "started");
 }
+
+int seed_prng(int bytes)
+{
+    if(!RAND_load_file("/dev/random", bytes))
+        return 0;
+    return 1;
+}
