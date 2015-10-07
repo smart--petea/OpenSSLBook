@@ -1,5 +1,5 @@
 #include "common.h"
-#define CERTFILE "server.pem"
+#define CERTFILE ( CERTS_DIR "/server.pem" )
 
 SSL_CTX *setup_server_ctx(void)
 {
@@ -40,6 +40,7 @@ void* server_thread(void *arg)
 
     if(SSL_accept(ssl) <= 0)
         int_error("Error accepting SSL connection");
+
     fprintf(stderr, "SSL Connection opened\n");
     if(do_server_loop(ssl))
         SSL_shutdown(ssl);
@@ -59,25 +60,34 @@ int main(int argc, char *argv[])
     pthread_t tid;
 
     init_OpenSSL();
-    seed_prng(1000);
+    fprintf(stderr, "\nex5-6 server:\n");
 
+    seed_prng(10);
     ctx = setup_server_ctx();
 
     acc = BIO_new_accept(PORT);
     if(!acc)
         int_error("Error creating server socket");
+    else
+        fprintf(stderr, "\nBio created on port %s", PORT);
 
     if(BIO_do_accept(acc) <= 0)
         int_error("Error binding server socket");
+    else
+        fprintf(stderr, "\nBio listening on port %s", PORT);
 
     for(;;)
     {
         if(BIO_do_accept(acc) <= 0 )
             int_error("Error accepting connection");
+        else
+            fprintf(stderr, "\nBio connected");
 
         client = BIO_pop(acc);
         if(!(ssl = SSL_new(ctx)))
             int_error("Error creating SSL context");
+        else
+            fprintf(stderr, "\nSSL context created");
 
         SSL_set_bio(ssl, client, client);
         pthread_create(&tid, NULL, server_thread, ssl);

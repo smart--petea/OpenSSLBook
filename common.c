@@ -85,7 +85,11 @@ void init_OpenSSL(void)
 
 int seed_prng(int bytes)
 {
-    if(!RAND_load_file("/dev/random", bytes))
+    fprintf(stderr, "\nseed_prng - ");
+    if(!RAND_load_file("/dev/random", bytes)) {
+        fprintf(stderr, "failed");
         return 0;
+    }
+    fprintf(stderr, "loaded");
     return 1;
 }

@@ -1,4 +1,5 @@
-#bash rootCA.sh
-#bash serverCA.sh
-bash shScripts/clientCert.sh
-#bash serverCert.sh
+SH_SCRIPTS=shScripts
+bash "$SH_SCRIPTS/rootCA.sh"
+bash "$SH_SCRIPTS/serverCA.sh"
+bash "$SH_SCRIPTS/clientCert.sh"
+bash "$SH_SCRIPTS/serverCert.sh"

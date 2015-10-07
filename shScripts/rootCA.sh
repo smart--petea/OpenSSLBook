@@ -1,4 +1,11 @@
-openssl req -newkey rsa:1024 -sha1 -keyout rootkey.pem -out rootreq.pem
-openssl x509 -req -in rootreq.pem -sha1 -extensions v3_ca -signkey rootkey.pem -out rootcert.pem
-cat rootcert.pem rootkey.pem > root.pem
-openssl x509 -subject -issuer -noout -in root.pem
+CERTS_DIR=./certs
+ROOTKEY="$CERTS_DIR/rootkey.pem"
+ROOTREQ="$CERTS_DIR/rootreq.pem"
+ROOTCERT="$CERTS_DIR/rootcert.pem"
+ROOTPEM="$CERTS_DIR/root.pem"
+
+
+openssl req -newkey rsa:1024 -sha1 -keyout $ROOTKEY -out $ROOTREQ
+openssl x509 -req -in $ROOTREQ -sha1 -extensions v3_ca -signkey $ROOTKEY -out $ROOTCERT
+cat $ROOTCERT $ROOTKEY > $ROOTPEM
+openssl x509 -subject -issuer -noout -in $ROOTPEM

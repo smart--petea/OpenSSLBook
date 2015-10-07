@@ -15,3 +15,6 @@ common.o: common.c
 
 setupCAEnv:
 	bash shScripts/setupCAEnvironment.sh
+
+genCerts:
+	bash shScripts/generateCertificates.sh

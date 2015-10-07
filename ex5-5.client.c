@@ -1,7 +1,7 @@
 #include "common.h"
 #include <string.h>
 
-#define CERTFILE "client.pem"
+#define CERTFILE ( CERTS_DIR "/client.pem" )
 
 SSL_CTX *setup_client_ctx(void)
 {
@@ -29,6 +29,7 @@ int do_client_loop(SSL *ssl)
 
         for(nwritten = 0; nwritten < sizeof(buf); nwritten += err)
         {
+            fprintf(stderr, "\nwriting %d", strlen(buf) - nwritten);
             err = SSL_write(ssl, buf + nwritten, strlen(buf) - nwritten);
 
             if(err <= 0)
@@ -46,8 +47,10 @@ int main(int argc, char *argv[])
     SSL_CTX *ctx;
 
     init_OpenSSL();
-    seed_prng(1000);
 
+    fprintf(stderr, "\nex5-5: \n");
+
+    seed_prng(10);
     ctx = setup_client_ctx();
 
     conn = BIO_new_connect(SERVER ":" PORT); //create BIO and set it connect dates
